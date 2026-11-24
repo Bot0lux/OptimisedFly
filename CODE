@@ -1,0 +1,399 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+local SoundService = game:GetService("SoundService")
+
+local DECAL_ID = 18608281922
+local SOUND_ID = 125109561011900
+local THUMB_ICON = "rbxthumb://type=Asset&id=" .. tostring(DECAL_ID) .. "&w=150&h=150"
+local ASSET_ICON = "rbxassetid://" .. tostring(DECAL_ID)
+
+local plr = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local pg = plr:WaitForChild("PlayerGui")
+
+local old = pg:FindFirstChild("FlyGui")
+if old then
+	old:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FlyGui"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 9999
+gui.Parent = pg
+
+pcall(function()
+	local sfx = Instance.new("Sound")
+	sfx.SoundId = "rbxassetid://" .. tostring(SOUND_ID)
+	sfx.Volume = 0.65
+	sfx.PlayOnRemove = false
+	sfx.Parent = SoundService
+	sfx:Play()
+	sfx.Ended:Once(function()
+		sfx:Destroy()
+	end)
+end)
+
+local function corner(obj, r)
+	pcall(function()
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, r)
+		c.Parent = obj
+	end)
+end
+
+local function showBanner()
+	local toast = Instance.new("Frame")
+	toast.Size = UDim2.fromOffset(224, 58)
+	toast.Position = UDim2.new(1, -240, 1, -78)
+	toast.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
+	toast.BorderSizePixel = 0
+	toast.Parent = gui
+	corner(toast, 9)
+
+	local tImg = Instance.new("ImageLabel")
+	tImg.Size = UDim2.fromOffset(40, 40)
+	tImg.Position = UDim2.fromOffset(9, 9)
+	tImg.BackgroundTransparency = 1
+	tImg.Image = THUMB_ICON
+	tImg.Parent = toast
+	corner(tImg, 7)
+
+	local tTitle = Instance.new("TextLabel")
+	tTitle.Size = UDim2.new(1, -58, 0, 20)
+	tTitle.Position = UDim2.fromOffset(56, 9)
+	tTitle.BackgroundTransparency = 1
+	tTitle.Text = "Fly script"
+	tTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+	tTitle.Font = Enum.Font.GothamBold
+	tTitle.TextSize = 13
+	tTitle.TextXAlignment = Enum.TextXAlignment.Left
+	tTitle.Parent = toast
+
+	local tSub = Instance.new("TextLabel")
+	tSub.Size = UDim2.new(1, -58, 0, 16)
+	tSub.Position = UDim2.fromOffset(56, 29)
+	tSub.BackgroundTransparency = 1
+	tSub.Text = "Made by Botlux"
+	tSub.TextColor3 = Color3.fromRGB(150, 156, 170)
+	tSub.Font = Enum.Font.GothamMedium
+	tSub.TextSize = 11
+	tSub.TextXAlignment = Enum.TextXAlignment.Left
+	tSub.Parent = toast
+
+	task.delay(5, function()
+		if toast and toast.Parent then
+			toast:Destroy()
+		end
+	end)
+end
+
+task.spawn(function()
+	local sent = false
+	for _ = 1, 10 do
+		local ok = pcall(function()
+			StarterGui:SetCore("SendNotification", {
+				Title = "Fly script",
+				Text = "Made by Botlux",
+				Icon = THUMB_ICON,
+				Duration = 5
+			})
+		end)
+		if ok then
+			sent = true
+			break
+		end
+		task.wait(0.3)
+	end
+
+	if not sent then
+		pcall(function()
+			StarterGui:SetCore("SendNotification", {
+				Title = "Fly script",
+				Text = "Made by Botlux",
+				Icon = ASSET_ICON,
+				Duration = 5
+			})
+		end)
+		showBanner()
+	end
+end)
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(252, 138)
+frame.Position = UDim2.fromOffset(40, 200)
+frame.BackgroundColor3 = Color3.fromRGB(18, 19, 23)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+corner(frame, 12)
+
+local miniFrame = Instance.new("Frame")
+miniFrame.Size = UDim2.fromOffset(118, 44)
+miniFrame.Position = UDim2.fromOffset(40, 200)
+miniFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 23)
+miniFrame.BorderSizePixel = 0
+miniFrame.Active = true
+miniFrame.Draggable = true
+miniFrame.Visible = false
+miniFrame.Parent = gui
+corner(miniFrame, 10)
+
+local miniIcon = Instance.new("ImageLabel")
+miniIcon.Size = UDim2.fromOffset(26, 26)
+miniIcon.Position = UDim2.fromOffset(8, 9)
+miniIcon.BackgroundTransparency = 1
+miniIcon.Image = THUMB_ICON
+miniIcon.Parent = miniFrame
+corner(miniIcon, 6)
+
+local expandBtn = Instance.new("TextButton")
+expandBtn.Size = UDim2.fromOffset(70, 30)
+expandBtn.Position = UDim2.fromOffset(40, 7)
+expandBtn.BackgroundColor3 = Color3.fromRGB(38, 42, 52)
+expandBtn.Text = "OPEN"
+expandBtn.TextColor3 = Color3.fromRGB(242, 244, 248)
+expandBtn.Font = Enum.Font.GothamBold
+expandBtn.TextSize = 12
+expandBtn.BorderSizePixel = 0
+expandBtn.AutoButtonColor = true
+expandBtn.Parent = miniFrame
+corner(expandBtn, 7)
+
+local function makeBtn(txt, sz, pos, col, rad, tSize)
+	local b = Instance.new("TextButton")
+	b.Size = sz
+	b.Position = pos
+	b.BackgroundColor3 = col
+	b.Text = txt
+	b.TextColor3 = Color3.fromRGB(242, 244, 248)
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = tSize or 12
+	b.BorderSizePixel = 0
+	b.AutoButtonColor = true
+	b.Parent = frame
+	corner(b, rad or 8)
+	return b
+end
+
+local upBtn = makeBtn("UP", UDim2.fromOffset(44, 54), UDim2.fromOffset(10, 10), Color3.fromRGB(38, 42, 52), 8, 12)
+local downBtn = makeBtn("DOWN", UDim2.fromOffset(44, 54), UDim2.fromOffset(10, 74), Color3.fromRGB(38, 42, 52), 8, 11)
+
+local toggleBtn = makeBtn("OFF", UDim2.fromOffset(72, 36), UDim2.fromOffset(62, 10), Color3.fromRGB(150, 44, 52), 8, 13)
+local minBtn = makeBtn("_", UDim2.fromOffset(32, 36), UDim2.fromOffset(138, 10), Color3.fromRGB(34, 38, 48), 8, 14)
+local delBtn = makeBtn("DEL", UDim2.fromOffset(68, 36), UDim2.fromOffset(174, 10), Color3.fromRGB(115, 34, 42), 8, 12)
+
+local minusBtn = makeBtn("-", UDim2.fromOffset(44, 34), UDim2.fromOffset(62, 54), Color3.fromRGB(32, 34, 41), 8, 16)
+local plusBtn = makeBtn("+", UDim2.fromOffset(44, 34), UDim2.fromOffset(198, 54), Color3.fromRGB(32, 34, 41), 8, 16)
+
+local speedLbl = Instance.new("TextLabel")
+speedLbl.Size = UDim2.fromOffset(76, 34)
+speedLbl.Position = UDim2.fromOffset(114, 54)
+speedLbl.BackgroundColor3 = Color3.fromRGB(25, 27, 32)
+speedLbl.TextColor3 = Color3.fromRGB(235, 238, 245)
+speedLbl.Font = Enum.Font.GothamBold
+speedLbl.TextSize = 14
+speedLbl.BorderSizePixel = 0
+speedLbl.Parent = frame
+corner(speedLbl, 8)
+
+local footerLbl = Instance.new("TextLabel")
+footerLbl.Size = UDim2.fromOffset(136, 32)
+footerLbl.Position = UDim2.fromOffset(62, 96)
+footerLbl.BackgroundTransparency = 1
+footerLbl.Text = "Made by Botlux"
+footerLbl.TextColor3 = Color3.fromRGB(130, 136, 150)
+footerLbl.Font = Enum.Font.GothamMedium
+footerLbl.TextSize = 11
+footerLbl.TextXAlignment = Enum.TextXAlignment.Left
+footerLbl.Parent = frame
+
+local icon = Instance.new("ImageLabel")
+icon.Size = UDim2.fromOffset(34, 34)
+icon.Position = UDim2.new(1, -44, 1, -44)
+icon.BackgroundTransparency = 1
+icon.Image = THUMB_ICON
+icon.Parent = frame
+corner(icon, 8)
+
+local speed = 50
+local flying = false
+local confirmDel = false
+local holdDir = 0
+local bv, bg, loopConn
+
+speedLbl.Text = tostring(speed)
+
+local function stopFly()
+	flying = false
+	holdDir = 0
+	toggleBtn.Text = "OFF"
+	toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 44, 52)
+
+	if loopConn then
+		loopConn:Disconnect()
+		loopConn = nil
+	end
+	if bv then
+		pcall(function() bv:Destroy() end)
+		bv = nil
+	end
+	if bg then
+		pcall(function() bg:Destroy() end)
+		bg = nil
+	end
+
+	local char = plr.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum then
+		pcall(function() hum.PlatformStand = false end)
+	end
+end
+
+local function startFly()
+	stopFly()
+	local char = plr.Character
+	local root = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso"))
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if not root or not hum then
+		return
+	end
+
+	flying = true
+	toggleBtn.Text = "ON"
+	toggleBtn.BackgroundColor3 = Color3.fromRGB(36, 132, 78)
+	pcall(function() hum.PlatformStand = true end)
+
+	bv = Instance.new("BodyVelocity")
+	bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+	bv.Velocity = Vector3.zero
+	bv.Parent = root
+
+	bg = Instance.new("BodyGyro")
+	bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+	bg.P = 1e4
+	bg.CFrame = root.CFrame
+	bg.Parent = root
+
+	loopConn = RunService.RenderStepped:Connect(function()
+		local c = plr.Character
+		local r = c and (c:FindFirstChild("HumanoidRootPart") or c:FindFirstChild("Torso") or c:FindFirstChild("UpperTorso"))
+		local h = c and c:FindFirstChildOfClass("Humanoid")
+		if not flying or not r or not h or h.Health <= 0 then
+			stopFly()
+			return
+		end
+
+		local cam = workspace.CurrentCamera
+		local dir = Vector3.zero
+		local md = h.MoveDirection
+
+		if md.Magnitude > 0.01 and cam then
+			local right = Vector3.new(cam.CFrame.RightVector.X, 0, cam.CFrame.RightVector.Z)
+			if right.Magnitude > 0 then
+				right = right.Unit
+			end
+			local camForward = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
+			if camForward.Magnitude > 0 then
+				camForward = camForward.Unit
+				local relZ = md:Dot(camForward)
+				local relX = md:Dot(right)
+				dir += (cam.CFrame.LookVector * relZ) + (right * relX)
+			else
+				dir += md
+			end
+		end
+
+		if holdDir ~= 0 then
+			dir += Vector3.new(0, holdDir, 0)
+		end
+
+		if dir.Magnitude > 0 then
+			bv.Velocity = dir.Unit * speed
+		else
+			bv.Velocity = Vector3.zero
+		end
+
+		if cam then
+			bg.CFrame = CFrame.lookAt(r.Position, r.Position + cam.CFrame.LookVector)
+		end
+	end)
+end
+
+minBtn.MouseButton1Click:Connect(function()
+	holdDir = 0
+	miniFrame.Position = frame.Position
+	frame.Visible = false
+	miniFrame.Visible = true
+end)
+
+expandBtn.MouseButton1Click:Connect(function()
+	frame.Position = miniFrame.Position
+	miniFrame.Visible = false
+	frame.Visible = true
+end)
+
+toggleBtn.MouseButton1Click:Connect(function()
+	if flying then
+		stopFly()
+	else
+		startFly()
+	end
+end)
+
+minusBtn.MouseButton1Click:Connect(function()
+	speed = math.max(5, speed - 5)
+	speedLbl.Text = tostring(speed)
+end)
+
+plusBtn.MouseButton1Click:Connect(function()
+	speed = math.min(300, speed + 5)
+	speedLbl.Text = tostring(speed)
+end)
+
+local function bindHold(btn, dirVal)
+	btn.MouseButton1Down:Connect(function()
+		holdDir = dirVal
+	end)
+	btn.MouseButton1Up:Connect(function()
+		if holdDir == dirVal then
+			holdDir = 0
+		end
+	end)
+	btn.MouseLeave:Connect(function()
+		if holdDir == dirVal then
+			holdDir = 0
+		end
+	end)
+	btn.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if holdDir == dirVal then
+				holdDir = 0
+			end
+		end
+	end)
+end
+
+bindHold(upBtn, 1)
+bindHold(downBtn, -1)
+
+delBtn.MouseButton1Click:Connect(function()
+	if not confirmDel then
+		confirmDel = true
+		delBtn.Text = "you sure?"
+		delBtn.BackgroundColor3 = Color3.fromRGB(185, 45, 45)
+	else
+		stopFly()
+		gui:Destroy()
+	end
+end)
+
+plr.CharacterAdded:Connect(function(char)
+	local hum = char:WaitForChild("Humanoid")
+	pcall(function() hum.PlatformStand = false end)
+	if flying then
+		task.wait(0.2)
+		startFly()
+	end
+end)
